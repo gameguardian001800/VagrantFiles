@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-   config.vm.network "private_network", ip: "192.168.39.11"
+  # config.vm.network "private_network", ip: "192.168.39.11"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -45,17 +45,16 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
-    config.vm.synced_folder "html", "/var/www/html"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-   config.vm.provider "virtualbox" do |vb|
-    vb.name = "Magento2"
-    vb.memory = "2048"
-    vb.cpus = 2
-   end
+  # config.vm.provider "virtualbox" do |vb|
+  #  vb.name = "Magento2"
+  #  vb.memory = "2048"
+  #  vb.cpus = 2
+  # end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
