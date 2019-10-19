@@ -66,11 +66,11 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: <<-SHELL
       yum update
       yum upgrade -y
-      yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
       yum install -y yum-utils
       yum install -y nano
       yum install -y git
       yum install -y wget
+      yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
       yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
       yum-config-manager --enable remi-php72
       yum -y install php php-pdo php-mysqlnd php-opcache php-zip php-xml php-gd php-devel php-mysql php-intl php-mbstring php-bcmath php-json php-iconv php-soap
@@ -99,7 +99,6 @@ EOL
       sudo chkconfig mailhog on
       sudo chkconfig httpd on
 	    sudo chkconfig mysqld on
-      egrep "temporary password" /var/log/mysqld.log
       service httpd restart
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
       sudo sed -i 's/sendmail_path = /usr/sbin/sendmail -t -i/sendmail_path = /usr/local/bin/mailhog/g' /etc/php.ini 
@@ -109,5 +108,6 @@ EOL
       service mailhog restart
       service mysqld restart
       service httpd restart
+      egrep "temporary password" /var/log/mysqld.log
     SHELL
 end
