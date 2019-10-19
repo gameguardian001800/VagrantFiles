@@ -69,6 +69,7 @@ Vagrant.configure("2") do |config|
       yum install -y nano
       yum install -y git
       yum install -y wget
+      yum install -y zip
       yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
       yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
       yum-config-manager --enable remi-php72
@@ -100,7 +101,7 @@ EOL
 	    sudo chkconfig mysqld on
       service httpd restart
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
-      sudo sed -i 's/sendmail_path = /usr/sbin/sendmail -t -i/sendmail_path = /usr/local/bin/mailhog/g' /etc/php.ini 
+      sudo sed -i 's/sendmail_path = \/usr\/sbin\/sendmail -t -i/sendmail_path = \/usr\/local\/bin\/mailhog/g' /etc/php.ini 
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
       sudo sed -i 's/max_input_time = 60/max_input_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/max_execution_time = 30/max_execution_time = 1800/g' /etc/php.ini 
@@ -110,3 +111,8 @@ EOL
       egrep "temporary password" /var/log/mysqld.log
     SHELL
 end
+
+# Run mysql_secure_installation after installing
+# Check rewrite_mod and SeLinux Permission if you can't access your server
+# Make sure you set an IP address on this vagrant file
+# Make sure you have shared folders too
