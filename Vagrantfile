@@ -105,6 +105,10 @@ EOL
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
       sudo sed -i 's/max_input_time = 60/max_input_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/max_execution_time = 30/max_execution_time = 1800/g' /etc/php.ini 
+      sudo sed -i 's/User apache/User vagrant/g' /etc/httpd/conf/httpd.conf 
+      sudo sed -i 's/Group apache/Group vagrant/g' /etc/httpd/conf/httpd.conf
+      sudo sed -i 's/SELINUX=permissive/SELINUX=disable/g' /etc/sysconfig/selinux
+      sudo sed -i 's/SELINUX=enforcing/SELINUX=disable/g' /etc/sysconfig/selinux
       service mailhog restart
       service mysqld restart
       service httpd restart
