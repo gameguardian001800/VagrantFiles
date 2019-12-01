@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "bento/centos-7.4"
+  config.vm.box = "bento/centos-7.6"
   config.vm.hostname = "centos7"
 
   # Disable automatic box update checking. If you disable this, then
@@ -50,11 +50,11 @@ Vagrant.configure("2") do |config|
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-  # config.vm.provider "virtualbox" do |vb|
+   config.vm.provider "virtualbox" do |vb|
   #  vb.name = "Magento2"
-  #  vb.memory = "2048"
+    vb.memory = "4096"
   #  vb.cpus = 2
-  # end
+   end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
