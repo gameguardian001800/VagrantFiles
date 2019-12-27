@@ -104,7 +104,7 @@ EOL
       sudo sed -i 's/max_execution_time = 30/max_execution_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux 
 
-      DOMAINS=("dev.devlearnground.com" "stg.devlearnground.com" "devleanrground.com")
+      DOMAINS=("dev.devlearnground.com" "stg.devlearnground.com" "devlearnground.com")
         mkdir /etc/httpd/sites-available
         mkdir /etc/httpd/sites-enabled
 
@@ -142,7 +142,7 @@ EOL
             sudo service httpd restart
 
         done
-
+      echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
       service mailhog restart
       service mysqld restart
       service httpd restart
@@ -154,3 +154,5 @@ end
 # Check rewrite_mod and SeLinux Permission if you can't access your server
 # Make sure you set an IP address on this vagrant file
 # Make sure you have shared folders too
+# Add this line on the last part of /etc/httpd/conf/httpd.conf
+#      IncludeOptional sites-enabled/*.conf
