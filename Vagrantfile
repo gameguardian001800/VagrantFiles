@@ -1,30 +1,74 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.box = "bento/centos-7.4"
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+  config.vm.box = "bento/centos-7.7"
   config.vm.hostname = "centos7"
 
-  # config.vm.network "private_network", ip: "192.168.39.11"
-  # config.vm.synced_folder ".html", "/var/www/html"
-  # config.vbguest.auto_update = false
-  
-  # config.vm.provider "virtualbox" do |vb|
-  #  vb.name = "Magento2"
-  #  vb.memory = "2048"
-  #  vb.cpus = 2
-  # end
-  
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+  # config.vm.box_check_update = false
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # NOTE: This will enable public access to the opened port
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  config.vm.network "private_network", ip: "192.168.39.11"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "dev", "/var/www/dev.devlearnground.com"
+  config.vm.synced_folder "stg", "/var/www/stg.devlearnground.com"
+  config.vm.synced_folder "pro", "/var/www/devlearnground.com"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+   config.vm.provider "virtualbox" do |vb|
+    vb.name = "Bento7.7"
+    vb.memory = "8192"
+    vb.cpus = 4
+   end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
+  # documentation for more information about their specific syntax and use.
     config.vm.provision "shell", inline: <<-SHELL
       yum update
       yum upgrade -y
-      yum install -y yum-utils
-      yum install -y nano
-      yum install -y git
-      yum install -y wget
-      yum install -y zip
-      yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      yum install -y http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+      yum install -y yum-utils nano git wget zip https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm http://rpms.remirepo.net/enterprise/remi-release-7.rpm
       yum-config-manager --enable remi-php72
       yum -y install php php-pdo php-mysqlnd php-opcache php-zip php-xml php-gd php-devel php-mysql php-intl php-mbstring php-bcmath php-json php-iconv php-soap
       wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
@@ -54,14 +98,51 @@ EOL
 	    sudo chkconfig mysqld on
       service httpd restart
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
-      sudo sed -i 's/sendmail_path = \/usr\/sbin\/sendmail -t -i/sendmail_path = \/usr\/local\/bin\/mailhog/g' /etc/php.ini 
+      sudo sed -i 's,sendmail_path = /usr/sbin/sendmail -t -i,sendmail_path = /usr/local/bin/mailhog,g' /etc/php.ini 
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
       sudo sed -i 's/max_input_time = 60/max_input_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/max_execution_time = 30/max_execution_time = 1800/g' /etc/php.ini 
-      sudo sed -i 's/User apache/User vagrant/g' /etc/httpd/conf/httpd.conf 
-      sudo sed -i 's/Group apache/Group vagrant/g' /etc/httpd/conf/httpd.conf
-      sudo sed -i 's/SELINUX=permissive/SELINUX=disable/g' /etc/sysconfig/selinux
-      sudo sed -i 's/SELINUX=enforcing/SELINUX=disable/g' /etc/sysconfig/selinux
+      sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux 
+
+      DOMAINS=("dev.devlearnground.com" "stg.devlearnground.com" "devleanrground.com")
+        mkdir /etc/httpd/sites-available
+        mkdir /etc/httpd/sites-enabled
+
+        ## Loop through all sites
+        for ((i=0; i < ${#DOMAINS[@]}; i++)); do
+
+            ## Current Domain
+            DOMAIN=${DOMAINS[$i]}
+
+            echo "Creating directory for $DOMAIN..."
+            mkdir -p /var/www/$DOMAIN
+
+            echo "Creating vhost config for $DOMAIN..."
+			
+			cat >/etc/httpd/sites-available/$DOMAIN.conf <<EOL
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	ServerName ${DOMAIN}
+	ServerAlias www.${DOMAIN}
+    DocumentRoot /var/www/${DOMAIN}
+    <Directory /var/www/${DOMAIN}>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+	ErrorLog logs/${DOMAIN}/error.log
+	CustomLog logs/${DOMAIN}/access.log combined
+</VirtualHost>
+EOL
+
+            echo "Enabling $DOMAIN. Will probably tell you to restart Apache..."
+            sudo ln -s /etc/httpd/sites-available/$DOMAIN.conf /etc/httpd/sites-enabled/$DOMAIN.conf
+
+            echo "So let's restart apache..."
+            sudo service httpd restart
+
+        done
+
       service mailhog restart
       service mysqld restart
       service httpd restart
