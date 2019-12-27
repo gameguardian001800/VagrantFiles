@@ -12,7 +12,7 @@ Vagrant.configure("2") do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
-  config.vm.box = "bento/centos-7.6"
+  config.vm.box = "bento/centos-7.7"
   config.vm.hostname = "centos7"
 
   # Disable automatic box update checking. If you disable this, then
@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  # config.vm.network "private_network", ip: "192.168.39.11"
+  config.vm.network "private_network", ip: "192.168.39.11"
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -45,15 +45,18 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
+  config.vm.synced_folder "dev", "/var/www/dev.devlearnground.com"
+  config.vm.synced_folder "stg", "/var/www/stg.devlearnground.com"
+  config.vm.synced_folder "pro", "/var/www/devlearnground.com"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
    config.vm.provider "virtualbox" do |vb|
-  #  vb.name = "Magento2"
-    vb.memory = "4096"
-  #  vb.cpus = 2
+    vb.name = "Bento7.7"
+    vb.memory = "8192"
+    vb.cpus = 4
    end
   #
   # View the documentation for the provider you are using for more
@@ -95,11 +98,51 @@ EOL
 	    sudo chkconfig mysqld on
       service httpd restart
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
-      sudo sed -i 's/sendmail_path = \/usr\/sbin\/sendmail -t -i/sendmail_path = \/usr\/local\/bin\/mailhog/g' /etc/php.ini 
+      sudo sed -i 's,sendmail_path = /usr/sbin/sendmail -t -i,sendmail_path = /usr/local/bin/mailhog,g' /etc/php.ini 
       sudo sed -i 's/memory_limit = 128M/memory_limit = 2G/g' /etc/php.ini 
       sudo sed -i 's/max_input_time = 60/max_input_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/max_execution_time = 30/max_execution_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux 
+
+      DOMAINS=("dev.devlearnground.com" "stg.devlearnground.com" "devleanrground.com")
+        mkdir /etc/httpd/sites-available
+        mkdir /etc/httpd/sites-enabled
+
+        ## Loop through all sites
+        for ((i=0; i < ${#DOMAINS[@]}; i++)); do
+
+            ## Current Domain
+            DOMAIN=${DOMAINS[$i]}
+
+            echo "Creating directory for $DOMAIN..."
+            mkdir -p /var/www/$DOMAIN
+
+            echo "Creating vhost config for $DOMAIN..."
+			
+			cat >/etc/httpd/sites-available/$DOMAIN.conf <<EOL
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	ServerName ${DOMAIN}
+	ServerAlias www.${DOMAIN}
+    DocumentRoot /var/www/${DOMAIN}
+    <Directory /var/www/${DOMAIN}>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+	ErrorLog logs/${DOMAIN}/error.log
+	CustomLog logs/${DOMAIN}/access.log combined
+</VirtualHost>
+EOL
+
+            echo "Enabling $DOMAIN. Will probably tell you to restart Apache..."
+            sudo ln -s /etc/httpd/sites-available/$DOMAIN.conf /etc/httpd/sites-enabled/$DOMAIN.conf
+
+            echo "So let's restart apache..."
+            sudo service httpd restart
+
+        done
+
       service mailhog restart
       service mysqld restart
       service httpd restart
