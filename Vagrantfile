@@ -70,7 +70,7 @@ Vagrant.configure("2") do |config|
       yum upgrade -y
       yum install -y yum-utils nano git wget zip https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm http://rpms.remirepo.net/enterprise/remi-release-7.rpm
       yum-config-manager --enable remi-php72
-      yum -y install php72-php php-pdo php-mysqlnd php-opcache php-zip php-xml php-gd php-devel php-mysql php-intl php-mbstring php-bcmath php-json php-iconv php-soap
+      yum -y install php php-pdo php-mysqlnd php-opcache php-zip php-xml php-gd php-devel php-mysql php-intl php-mbstring php-bcmath php-json php-iconv php-soap
       wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
       yum localinstall -y mysql57-community-release-el7-11.noarch.rpm
       yum update -y
