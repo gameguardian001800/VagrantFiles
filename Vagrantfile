@@ -116,6 +116,7 @@ EOL
 
             echo "Creating directory for $DOMAIN..."
             mkdir -p /var/www/$DOMAIN
+	    mkdir -p /logs/$DOMAIN
 
             echo "Creating vhost config for $DOMAIN..."
 			
@@ -130,8 +131,8 @@ EOL
         AllowOverride All
         Require all granted
     </Directory>
-	ErrorLog logs/${DOMAIN}/error.log
-	CustomLog logs/${DOMAIN}/access.log combined
+	ErrorLog /logs/${DOMAIN}/error.log
+	CustomLog /logs/${DOMAIN}/access.log combined
 </VirtualHost>
 EOL
 
