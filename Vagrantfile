@@ -15,6 +15,10 @@ Vagrant.configure("2") do |config|
   config.vm.box = "bento/centos-7.7"
   config.vm.hostname = "centos7"
 
+  # This will install Virtualbox Additions
+  # Set this to false after running for the first time
+  config.vbguest.auto_update = true
+
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
@@ -45,19 +49,19 @@ Vagrant.configure("2") do |config|
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
-  config.vm.synced_folder "dev", "/var/www/dev.devlearnground.com"
-  config.vm.synced_folder "stg", "/var/www/stg.devlearnground.com"
-  config.vm.synced_folder "pro", "/var/www/devlearnground.com"
+  config.vm.synced_folder "dev", "/var/www/devlearnground.com"
+  config.vm.synced_folder "projectyuna", "/var/www/projectyuna.com"
+  config.vm.synced_folder "zeus", "/var/www/zeus.com"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
   #
-   config.vm.provider "virtualbox" do |vb|
-    vb.name = "Bento7.7"
-    vb.memory = "8192"
-    vb.cpus = 4
-   end
+  # config.vm.provider "virtualbox" do |vb|
+  #  vb.name = "Bento7.7"
+  #  vb.memory = "8192"
+  #  vb.cpus = 4
+  # end
   #
   # View the documentation for the provider you are using for more
   # information on available options.
@@ -68,7 +72,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: <<-SHELL
       yum update
       yum upgrade -y
-      yum install -y yum-utils nano git wget zip https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+      yum install -y yum-utils nano git wget zip unzip https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm http://rpms.remirepo.net/enterprise/remi-release-7.rpm
       yum-config-manager --enable remi-php72
       yum -y install php php-pdo php-mysqlnd php-opcache php-zip php-xml php-gd php-devel php-mysql php-intl php-mbstring php-bcmath php-json php-iconv php-soap
       wget https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
@@ -104,7 +108,7 @@ EOL
       sudo sed -i 's/max_execution_time = 30/max_execution_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux 
 
-      DOMAINS=("dev.devlearnground.com" "stg.devlearnground.com" "devlearnground.com")
+      DOMAINS=("devlearnground.com" "projectyuna.com" "projectyuna.com")
         mkdir /etc/httpd/sites-available
         mkdir /etc/httpd/sites-enabled
 
@@ -117,6 +121,7 @@ EOL
             echo "Creating directory for $DOMAIN..."
             mkdir -p /var/www/$DOMAIN
 	    mkdir -p /logs/$DOMAIN
+            sudo chown -R apache:apache /logs/
 
             echo "Creating vhost config for $DOMAIN..."
 			
@@ -144,6 +149,9 @@ EOL
 
         done
       echo "IncludeOptional sites-enabled/*.conf" >> /etc/httpd/conf/httpd.conf
+      sudo chown -R apache:apache /var/lib/php
+      php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+      sudo php composer-setup.php --install-dir=/usr/bin --filename=composer
       service mailhog restart
       service mysqld restart
       service httpd restart
