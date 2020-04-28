@@ -91,7 +91,10 @@ Vagrant.configure("2") do |config|
 Description=Mailhog
 After=network.target vagrant.mount
 [Service]
-ExecStart=/usr/bin/env /usr/local/bin/mailhog > /dev/null 2>&1 &
+ExecStart=/usr/local/bin/mailhog \
+-api-bind-addr 127.0.0.1:8025 \
+-ui-bind-addr 127.0.0.1:8025 \
+-smtp-bind-addr 127.0.0.1:1025 > /dev/null 2>&1 &
 [Install]
 WantedBy=multi-user.target
 EOL
@@ -108,7 +111,7 @@ EOL
       sudo sed -i 's/max_execution_time = 30/max_execution_time = 1800/g' /etc/php.ini 
       sudo sed -i 's/SELINUX=permissive/SELINUX=disabled/g' /etc/sysconfig/selinux 
 
-      DOMAINS=("devlearnground.com" "projectyuna.com" "projectyuna.com")
+      DOMAINS=("devlearnground.com" "projectyuna.com" "zeus.com")
         mkdir /etc/httpd/sites-available
         mkdir /etc/httpd/sites-enabled
 
@@ -161,7 +164,3 @@ end
 
 # Run mysql_secure_installation after installing
 # Check rewrite_mod and SeLinux Permission if you can't access your server
-# Make sure you set an IP address on this vagrant file
-# Make sure you have shared folders too
-# Add this line on the last part of /etc/httpd/conf/httpd.conf
-#      IncludeOptional sites-enabled/*.conf
