@@ -92,9 +92,9 @@ Description=Mailhog
 After=network.target vagrant.mount
 [Service]
 ExecStart=/usr/local/bin/mailhog \
--api-bind-addr 127.0.0.1:8025 \
--ui-bind-addr 127.0.0.1:8025 \
--smtp-bind-addr 127.0.0.1:1025 > /dev/null 2>&1 &
+-api-bind-addr 0.0.0.0:8025 \
+-ui-bind-addr 0.0.0.0:8025 \
+-smtp-bind-addr 0.0.0.0:1025 > /dev/null 2>&1 &
 [Install]
 WantedBy=multi-user.target
 EOL
