@@ -1,0 +1,42 @@
+php composer-setup.php --install-dir=/usr/bin --filename=composer
+composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition .
+
+php bin/magento setup:install --base-url=http://projectyuna.com/ \
+--db-host=localhost --db-name=mage2 --db-user=vagrant --db-password=Pwdnac255** \
+--admin-firstname=El --admin-lastname=Vin --admin-email=admin@projectyuna.com \
+--admin-user=admin --admin-password=Pwdnac255** --language=en_US \
+--currency=JPY --timezone=Asia/Tokyo --cleanup-database --backend-frontname=admin \
+--sales-order-increment-prefix="EL" --session-save=db --use-rewrites=1 \
+--search-engine=elasticsearch7 --elasticsearch-host=localhost \
+--elasticsearch-port=9200
+
+M2 Keys:
+hello	
+Public Key: 92090cdfcded4a8a35ce9d7c3b071fe3
+Private Key: 3978e5c9d4d7810255601354564f252e
+
+M2 Marketplace Account:
+labitap349@gotkmail.com
+Karasuno2020
+
+composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition .
+composer require --dev mage2tv/magento-cache-clean
+composer require --no-update --dev magento/ece-tools magento/magento-cloud-docker
+curl -sL https://github.com/magento/magento-cloud-docker/releases/download/1.2.0/init-docker.sh | bash -s -- --php 7.4 --host <value>
+./vendor/bin/ece-docker build:compose --mode="developer" --with-xdebug --set-docker-host --rmq 3.8 --mailhog-smtp-port=1025 --mailhog-http-port=8025 --host=<value> --port=<value>
+docker-compose up  -d
+docker-compose run --rm deploy cloud-deploy
+docker-compose run --rm deploy magento-command deploy:mode:set developer
+docker-compose run --rm deploy cloud-post-deploy
+docker-compose run --rm deploy magento-command config:set system/full_page_cache/caching_application 2 --lock-env
+docker-compose run --rm deploy magento-command setup:config:set --http-cache-hosts=varnish
+docker-compose run --rm deploy magento-command module:disable Magento_TwoFactorAuth Magento_Csp
+docker-compose run --rm deploy magento-command setup:di:compile
+docker-compose run --rm deploy magento-command cache:clean
+
+Remove all data and rebuild clean environment:
+bin/magento-docker down -v
+
+https://magento2.docker/admin
+username = Admin
+password = 123123q
